@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grammar Time Attack!</title>
+    <title>Grammar Practice</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -27,22 +27,10 @@
             overflow: hidden;
         }
         
-        /* Start Screen */
-        #start-screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-
-        /* Timer Header */
+        /* Header */
         .header-flex {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
@@ -50,22 +38,6 @@
         }
         h1 { color: #2c3e50; margin: 0; font-size: 24px;}
         
-        #timer-display {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2c3e50;
-            background: #ecf0f1;
-            padding: 5px 15px;
-            border-radius: 8px;
-        }
-        .urgent { color: #e74c3c !important; animation: pulse 1s infinite; }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
         .word-box {
             background-color: #e8f4f8;
             border: 1px dashed #3498db;
@@ -109,8 +81,6 @@
             cursor: pointer; font-weight: bold; transition: 0.3s;
         }
         button:hover { background-color: #2980b9; }
-        #start-btn { background-color: #2ecc71; font-size: 22px; padding: 15px 40px;}
-        #start-btn:hover { background-color: #27ae60; }
         
         #feedback { text-align: center; margin-top: 20px; font-size: 18px; font-weight: bold; }
     </style>
@@ -118,15 +88,8 @@
 <body>
 
 <div class="container">
-    <div id="start-screen">
-        <h1 style="border:none; margin-bottom: 20px; font-size: 32px;">Ready?</h1>
-        <p style="font-size: 18px; margin-bottom: 30px;">You have <strong>90 seconds</strong> to complete the exercises.</p>
-        <button id="start-btn" onclick="startExercise()">START EXERCISE 🚀</button>
-    </div>
-
     <div class="header-flex">
         <h1>Present Continuous & Simple</h1>
-        <div id="timer-display"><span id="time">90</span>s</div>
     </div>
     
     <div class="word-box">
@@ -174,57 +137,7 @@
 </div>
 
 <script>
-    let timeLeft = 90;
-    let timerId;
     let isFinished = false;
-    
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    function playSound(type) {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        if (type === 'tick') {
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
-        } else if (type === 'alarm') {
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
-            osc.start(); osc.stop(audioCtx.currentTime + 1.5);
-        }
-    }
-
-    function startExercise() {
-        document.getElementById('start-screen').style.display = 'none';
-        
-        timerId = setInterval(() => {
-            if (isFinished) return;
-            
-            timeLeft--;
-            const timeEl = document.getElementById('time');
-            timeEl.innerText = timeLeft;
-            
-            if (timeLeft <= 10 && timeLeft > 0) {
-                timeEl.parentElement.classList.add('urgent');
-                playSound('tick');
-            }
-            
-            if (timeLeft <= 0) {
-                clearInterval(timerId);
-                timeEl.innerText = "0";
-                playSound('alarm');
-                checkAnswers(true); 
-            }
-        }, 1000);
-    }
 
     const answers = {
         q1: ["am measuring", "'m measuring"],
@@ -237,10 +150,9 @@
         q8: ["don't eat", "do not eat"]
     };
 
-    function checkAnswers(timeUp = false) {
+    function checkAnswers() {
         if (isFinished) return;
         isFinished = true;
-        clearInterval(timerId);
         document.getElementById('check-btn').style.display = 'none';
 
         let score = 0;
@@ -267,14 +179,13 @@
         }
 
         let feedback = document.getElementById("feedback");
-        let timeMsg = timeUp ? "Time's up! ⏰<br>" : "";
         
         if (score === total) {
             feedback.style.color = "#27ae60";
-            feedback.innerHTML = `${timeMsg}Perfeito! Você acertou ${score} de ${total}! 🎉`;
+            feedback.innerHTML = `Perfeito! Você acertou ${score} de ${total}! 🎉`;
         } else {
             feedback.style.color = "#c0392b";
-            feedback.innerHTML = `${timeMsg}Você acertou ${score} de ${total}.`;
+            feedback.innerHTML = `Você acertou ${score} de ${total}.`;
         }
     }
 </script>
